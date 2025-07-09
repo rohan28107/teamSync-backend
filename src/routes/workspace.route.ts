@@ -1,32 +1,32 @@
 
 import { Router } from "express";
 import {
-//   changeWorkspaceMemberRoleController,
+  changeWorkspaceMemberRoleController,
   createWorkspaceController,
-//   deleteWorkspaceByIdController,
+  deleteWorkspaceByIdController,
   getAllWorkspacesUserIsMemberController,
-//   getWorkspaceAnalyticsController,
+  getWorkspaceAnalyticsController,
   getWorkspaceByIdController,
   getWorkspaceMembersController,
-//   updateWorkspaceByIdController,
+  updateWorkspaceByIdController,
 } from "../controllers/workspace.controller";
 
 const workspaceRoutes = Router();
 
 workspaceRoutes.post("/create/new", createWorkspaceController);
-// workspaceRoutes.put("/update/:id", updateWorkspaceByIdController);
+workspaceRoutes.put("/update/:id", updateWorkspaceByIdController);
 
-// workspaceRoutes.put(
-//   "/change/member/role/:id",
-//   changeWorkspaceMemberRoleController
-// );
+workspaceRoutes.put(
+  "/change/member/role/:id",
+  changeWorkspaceMemberRoleController
+);
 
-// workspaceRoutes.delete("/delete/:id", deleteWorkspaceByIdController);
+workspaceRoutes.delete("/delete/:id", deleteWorkspaceByIdController);
 
 workspaceRoutes.get("/all", getAllWorkspacesUserIsMemberController);
 
 workspaceRoutes.get("/members/:id", getWorkspaceMembersController);
-// workspaceRoutes.get("/analytics/:id", getWorkspaceAnalyticsController);
+workspaceRoutes.get("/analytics/:id", getWorkspaceAnalyticsController);
 
 workspaceRoutes.get("/:id", getWorkspaceByIdController);
 
