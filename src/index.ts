@@ -25,14 +25,24 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
+// app.use(
+//   session({
+//     name: "session",
+//     keys: [config.SESSION_SECRET],
+//     maxAge: 24 * 60 * 60 * 1000,
+//     secure: config.NODE_ENV === "production",
+//     httpOnly: true,
+//     sameSite: "lax",
+//   })
+// );
 app.use(
   session({
     name: "session",
     keys: [config.SESSION_SECRET],
     maxAge: 24 * 60 * 60 * 1000,
-    secure: config.NODE_ENV === "production",
+    secure: true, // ✅ Send only over HTTPS
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "none", // ✅ Allow cross-site cookies
   })
 );
 
@@ -41,7 +51,8 @@ app.use(passport.session());
 
 app.use(
   cors({
-    origin: config.FRONTEND_ORIGIN,
+    origin: true,
+    // config.FRONTEND_ORIGIN,
     credentials: true,
   })
 );
