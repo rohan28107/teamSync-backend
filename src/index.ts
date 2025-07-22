@@ -58,10 +58,10 @@ app.get(
     //     message: "Hello Err"
     //   })
     // }
-    throw new BadRequestException(
-      "this is bad request",
-      ErrorCodeEnum.AUTH_INVALID_TOKEN
-    );
+    // throw new BadRequestException(
+    //   "this is bad request",
+    //   ErrorCodeEnum.AUTH_INVALID_TOKEN
+    // );
     res.status(HTTPSTATUS.OK).json({
       message: "Hello Everyone",
     });
