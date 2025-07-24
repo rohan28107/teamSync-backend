@@ -5,22 +5,50 @@ import passport from "passport";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import { registerSchema } from "../validation/auth.validation";
 import { registerUserService } from "../services/auth.service";
+import jwt from "jsonwebtoken";
 
 export const googleLoginCallback = asyncHandler(
   async (req: Request, res: Response) => {
-    const currentWorkspace = req.user?.currentWorkspace;
+    const user = req.user as any;
 
-    if (!currentWorkspace) {
+    if (!user?.currentWorkspace) {
       return res.redirect(
         `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`
       );
     }
 
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+      },
+      config.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // Redirect with JWT as query param
     return res.redirect(
-      `${config.FRONTEND_ORIGIN}/workspace/${currentWorkspace}`
+      `${config.FRONTEND_ORIGIN}/workspace/${user.currentWorkspace}?token=${token}`
     );
   }
 );
+
+
+// export const googleLoginCallback = asyncHandler(
+//   async (req: Request, res: Response) => {
+//     const currentWorkspace = req.user?.currentWorkspace;
+
+//     if (!currentWorkspace) {
+//       return res.redirect(
+//         `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`
+//       );
+//     }
+
+//     return res.redirect(
+//       `${config.FRONTEND_ORIGIN}/workspace/${currentWorkspace}`
+//     );
+//   }
+// );
 
 export const registerUserController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -36,39 +64,67 @@ export const registerUserController = asyncHandler(
   }
 );
 
+// export const loginController = asyncHandler(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     passport.authenticate(
+//       "local",
+//       (
+//         err: Error | null,
+//         user: Express.User | false,
+//         info: { message: string } | undefined
+//       ) => {
+//         if (err) {
+//           return next(err);
+//         }
+
+//         if (!user) {
+//           return res.status(HTTPSTATUS.UNAUTHORIZED).json({
+//             message: info?.message || "Invalid email or password",
+//           });
+//         }
+
+//         req.logIn(user, (err) => {
+//           if (err) {
+//             return next(err);
+//           }
+
+//           return res.status(HTTPSTATUS.OK).json({
+//             message: "Logged in successfully",
+//             user,
+//           });
+//         });
+//       }
+//     )(req, res, next);
+//   }
+// );
+
+
 export const loginController = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate(
-      "local",
-      (
+    passport.authenticate("local", async (
         err: Error | null,
         user: Express.User | false,
-        info: { message: string } | undefined
-      ) => {
-        if (err) {
-          return next(err);
-        }
-
-        if (!user) {
-          return res.status(HTTPSTATUS.UNAUTHORIZED).json({
-            message: info?.message || "Invalid email or password",
-          });
-        }
-
-        req.logIn(user, (err) => {
-          if (err) {
-            return next(err);
-          }
-
-          return res.status(HTTPSTATUS.OK).json({
-            message: "Logged in successfully",
-            user,
-          });
-        });
+        info: { message: string } | undefined) => {
+      if (err || !user) {
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
       }
-    )(req, res, next);
+
+      // Create JWT token
+      const token = jwt.sign(
+        { userId: user._id, email: user.email },
+        config.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+
+      return res.status(200).json({
+        message: "Logged in successfully",
+        token,
+        user,
+      });
+    })(req, res, next);
   }
 );
+
 
 export const logOutController = asyncHandler(
   async (req: Request, res: Response) => {
