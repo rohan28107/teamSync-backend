@@ -37,6 +37,7 @@ passport.use(
           picture: picture,
           email: email,
         });
+        console.log('user after google', user)
         done(null, user);
       } catch (error) {
         done(error, false);
@@ -65,3 +66,12 @@ passport.use(
 
 // passport.serializeUser((user: any, done) => done(null, user));
 // passport.deserializeUser((user: any, done) => done(null, user));
+passport.serializeUser((user: any, done) => {
+  // user is what you passed in `done(null, payload)` inside your strategy
+  done(null, { userId: user.userId, email: user.email });
+});
+
+passport.deserializeUser((user: any, done) => {
+  // 'user' here is the object from serializeUser
+  done(null, user); // req.user will be { userId, email }
+});
