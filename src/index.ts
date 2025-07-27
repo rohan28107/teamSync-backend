@@ -19,6 +19,7 @@ import workspaceRoutes from "./routes/workspace.route";
 import memberRoutes from "./routes/member.route";
 import jwtAuthMiddleware from "./middlewares/jwtAuth.middleware";
 import projectRoutes from "./routes/project.route";
+import taskRoutes from "./routes/task.route";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -96,6 +97,7 @@ app.use(`${BASE_PATH}/user`, jwtAuthMiddleware, userRoutes);
 app.use(`${BASE_PATH}/workspace`, jwtAuthMiddleware, workspaceRoutes);
 app.use(`${BASE_PATH}/member`, jwtAuthMiddleware, memberRoutes);
 app.use(`${BASE_PATH}/project`, jwtAuthMiddleware, projectRoutes);
+app.use(`${BASE_PATH}/task`, jwtAuthMiddleware, taskRoutes);
 
 app.use(errorHandler);
 
