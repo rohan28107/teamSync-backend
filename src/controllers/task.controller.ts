@@ -85,11 +85,22 @@ export const getAllTasksController = asyncHandler(
       priority: req.query.priority
         ? (req.query.priority as string)?.split(",")
         : undefined,
+      type: req.query.type
+        ? (req.query.type as string)?.split(",")
+        : undefined,
       assignedTo: req.query.assignedTo
         ? (req.query.assignedTo as string)?.split(",")
         : undefined,
+      assignedBy: req.query.assignedBy
+        ? (req.query.assignedBy as string)?.split(",")
+        : undefined,
+      iteration: req.query.iteration as string | undefined,
       keyword: req.query.keyword as string | undefined,
-      dueDate: req.query.dueDate as string | undefined,
+      startDateFrom: req.query.startDateFrom as string | undefined,
+      startDateTo: req.query.startDateTo as string | undefined,
+
+      dueDateFrom: req.query.dueDateFrom as string | undefined,
+      dueDateTo: req.query.dueDateTo as string | undefined,
     };
 
     const pagination = {

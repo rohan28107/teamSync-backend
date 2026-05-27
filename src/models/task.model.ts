@@ -17,7 +17,13 @@ export interface TaskDocument extends Document {
   priority: TaskPriorityEnumType;
   assignedTo: mongoose.Types.ObjectId | null;
   createdBy: mongoose.Types.ObjectId;
+  assignedBy: mongoose.Types.ObjectId | null;
+  figmaLinks: string[];
+  jiraLinks: string[];
+  prLinks: string[];
+  startDate: Date | null;
   dueDate: Date | null;
+  iteration: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -76,8 +82,34 @@ const taskSchema = new Schema<TaskDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
+
+  // ==========================
+  // INDEXES
+  // ==========================
+
+  taskSchema.index({ workspace: 1 });
+
+  taskSchema.index({ project: 1 });
+
+  taskSchema.index({ status: 1 });
+
+  taskSchema.index({ priority: 1 });
+
+  taskSchema.index({ type: 1 });
+
+  taskSchema.index({ assignedTo: 1 });
+
+  taskSchema.index({ assignedBy: 1 });
+
+  taskSchema.index({ dueDate: 1 });
+
+  taskSchema.index({ startDate: 1 });
+
+  taskSchema.index({ iteration: 1 });
+
+  // ==========================
 
 const TaskModel = mongoose.model<TaskDocument>("Task", taskSchema);
 

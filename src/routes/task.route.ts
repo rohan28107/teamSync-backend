@@ -11,21 +11,21 @@ const taskRoutes = Router();
 
 taskRoutes.post(
   "/project/:projectId/workspace/:workspaceId/create",
-  createTaskController
+  createTaskController,
 );
 
 taskRoutes.delete("/:id/workspace/:workspaceId/delete", deleteTaskController);
 
 taskRoutes.put(
   "/:id/project/:projectId/workspace/:workspaceId/update",
-  updateTaskController
+  updateTaskController,
 );
 
 taskRoutes.get("/workspace/:workspaceId/all", getAllTasksController);
 
 taskRoutes.get(
   "/:id/project/:projectId/workspace/:workspaceId",
-  getTaskByIdController
+  getTaskByIdController,
 );
 
 export default taskRoutes;

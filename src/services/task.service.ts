@@ -97,15 +97,21 @@ export const updateTaskService = async (
   return { updatedTask };
 };
 
-export const  getAllTasksService = async (
+export const getAllTasksService = async (
   workspaceId: string,
   filters: {
     projectId?: string;
     status?: string[];
     priority?: string[];
+    type?: string[];
     assignedTo?: string[];
+    assignedBy?: string[];
+    iteration?: string;
     keyword?: string;
-    dueDate?: string;
+    startDateFrom?: string;
+    startDateTo?: string;
+    dueDateFrom?: string;
+    dueDateTo?: string;
   },
   pagination: {
     pageSize: number;
@@ -116,34 +122,104 @@ export const  getAllTasksService = async (
     workspace: workspaceId,
   };
 
+  // Project Filter
   if (filters.projectId) {
     query.project = filters.projectId;
   }
 
-  if (filters.status && filters.status?.length > 0) {
-    query.status = { $in: filters.status };
-  }
-
-  if (filters.priority && filters.priority?.length > 0) {
-    query.priority = { $in: filters.priority };
-  }
-
-  if (filters.assignedTo && filters.assignedTo?.length > 0) {
-    query.assignedTo = { $in: filters.assignedTo };
-  }
-
-  if (filters.keyword && filters.keyword !== undefined) {
-    query.title = { $regex: filters.keyword, $options: "i" };
-  }
-
-  if (filters.dueDate) {
-    query.dueDate = {
-      $eq: new Date(filters.dueDate),
+  // Status Filter
+  if (filters.status && filters.status.length > 0) {
+    query.status = {
+      $in: filters.status,
     };
   }
 
-  //Pagination Setup
+  // Priority Filter
+  if (filters.priority && filters.priority.length > 0) {
+    query.priority = {
+      $in: filters.priority,
+    };
+  }
+
+  // Type Filter
+  if (filters.type && filters.type.length > 0) {
+    query.type = {
+      $in: filters.type,
+    };
+  }
+
+  // Assigned To Filter
+  if (filters.assignedTo && filters.assignedTo.length > 0) {
+    query.assignedTo = {
+      $in: filters.assignedTo,
+    };
+  }
+
+  // Assigned By Filter
+  if (filters.assignedBy && filters.assignedBy.length > 0) {
+    query.assignedBy = {
+      $in: filters.assignedBy,
+    };
+  }
+
+  // Iteration Filter
+  if (filters.iteration) {
+    query.iteration = filters.iteration;
+  }
+
+  // Keyword Search
+  if (filters.keyword) {
+    query.$or = [
+      {
+        title: {
+          $regex: filters.keyword,
+          $options: "i",
+        },
+      },
+      {
+        description: {
+          $regex: filters.keyword,
+          $options: "i",
+        },
+      },
+      {
+        taskCode: {
+          $regex: filters.keyword,
+          $options: "i",
+        },
+      },
+    ];
+  }
+
+  // Start Date Range Filter
+  if (filters.startDateFrom || filters.startDateTo) {
+    query.startDate = {};
+
+    if (filters.startDateFrom) {
+      query.startDate.$gte = new Date(filters.startDateFrom);
+    }
+
+    if (filters.startDateTo) {
+      query.startDate.$lte = new Date(filters.startDateTo);
+    }
+  }
+
+  // Due Date Range Filter
+  if (filters.dueDateFrom || filters.dueDateTo) {
+    query.dueDate = {};
+
+    if (filters.dueDateFrom) {
+      query.dueDate.$gte = new Date(filters.dueDateFrom);
+    }
+
+    if (filters.dueDateTo) {
+      query.dueDate.$lte = new Date(filters.dueDateTo);
+    }
+  }
+
+  // Pagination Setup
   const { pageSize, pageNumber } = pagination;
+
   const skip = (pageNumber - 1) * pageSize;
 
   const [tasks, totalCount] = await Promise.all([
@@ -151,8 +227,27 @@ export const  getAllTasksService = async (
       .skip(skip)
       .limit(pageSize)
       .sort({ createdAt: -1 })
-      .populate("assignedTo", "_id name profilePicture -password")
-      .populate("project", "_id emoji name"),
+
+      .populate(
+        "assignedTo",
+        "_id name email profilePicture"
+      )
+
+      .populate(
+        "assignedBy",
+        "_id name email profilePicture"
+      )
+
+      .populate(
+        "createdBy",
+        "_id name email profilePicture"
+      )
+
+      .populate(
+        "project",
+        "_id emoji name"
+      ),
+
     TaskModel.countDocuments(query),
   ]);
 
@@ -160,12 +255,15 @@ export const  getAllTasksService = async (
 
   return {
     tasks,
+
     pagination: {
       pageSize,
       pageNumber,
       totalCount,
       totalPages,
       skip,
+      hasNextPage: pageNumber < totalPages,
+      hasPrevPage: pageNumber > 1,
     },
   };
 };
