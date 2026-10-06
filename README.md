@@ -1,0 +1,1 @@
+[![Architecture diagram of rohan28107/teamsync-backend](https://gitdiagram.com/rohan28107/teamsync-backend/diagram.png)](https://gitdiagram.com/rohan28107/teamsync-backend?utm_source=readme&utm_medium=picture)
